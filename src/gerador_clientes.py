@@ -5,11 +5,9 @@ import unidecode
 
 fake = Faker('pt_BR')
 
-def generate_unique_id(existing_ids):
-    while True:
-        id = random.randint(1, 99999)
-        if id not in existing_ids:
-            return id
+def generate_sequential_id():
+    for id in range(1, 14002):  # Generate sequential IDs from 1 to 14001
+        yield id
 
 def generate_unique_name(existing_names):
     while True:
@@ -17,12 +15,12 @@ def generate_unique_name(existing_names):
         if name not in existing_names:
             return name
 
-def generate_random_client(existing_ids, existing_names):
-    id = generate_unique_id(existing_ids)
+def generate_random_client(id_generator, existing_names):
+    id = next(id_generator)
     name = generate_unique_name(existing_names)
     birthdate = fake.date_of_birth(minimum_age=18, maximum_age=90)
     cpf = fake.cpf()
-    email = unidecode.unidecode((name.replace(" ", ".") + "@example.com").lower()) 
+    email = unidecode.unidecode((name.replace(" ", ".") + "@example.com").lower())
 
     return [id, name, birthdate, cpf, email]
 
@@ -31,10 +29,9 @@ def write_to_csv(data):
         writer = csv.writer(file)
         writer.writerow(data)
 
-existing_ids = set()
+id_generator = generate_sequential_id()
 existing_names = set()
-for _ in range(99999): 
-    client_data = generate_random_client(existing_ids, existing_names)
-    existing_ids.add(client_data[0])
+for _ in range(14000):  # Generate 14000 clients
+    client_data = generate_random_client(id_generator, existing_names)
     existing_names.add(client_data[1])
     write_to_csv(client_data)
